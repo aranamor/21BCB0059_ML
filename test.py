@@ -9,7 +9,7 @@ def test_database():
 
     users = session.query(User).all()
     for user in users:
-        print(f"User id-> {user.id}, User ID (user_id)-> {user.user_id}, Request Count-> {user.request_count}")
+        print(f"Serial No.-> {user.id}, User ID (user_id)-> {user.user_id}")
 
 
 if __name__ == '__main__':

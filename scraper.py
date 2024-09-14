@@ -17,13 +17,13 @@ def scrape_news():
             response.raise_for_status()  # Check for HTTP request errors
             soup = BeautifulSoup(response.content, 'html.parser')
 
-            articles = soup.select('h3 a')  # Google News uses <h3> for titles
+            articles = soup.select('h3 a')
             if articles:
                 news_articles.clear()
                 print("Scraping News Articles:")
                 for article in articles[:5]:  # Limit to top 5 articles
                     title = article.get_text()
-                    link = "https://news.google.com" + article['href'][1:]  # Google News links are relative
+                    link = "https://news.google.com" + article['href'][1:]
                     news_articles.append({"title": title, "link": link})
             else:
                 print("No articles found. The page structure may have changed.")

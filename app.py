@@ -13,11 +13,9 @@ MAX_REQUESTS = 5
 TIME_WINDOW = 3600  # rate limit
 
 
-
 # Serve the homepage
 @app.route('/')
 def index():
-    # Pass scraped news articles to the template
     return render_template('index.html', articles=news_articles)
 
 
@@ -54,18 +52,14 @@ def search():
     if not track_user_requests(user_id):
         return jsonify({"error": "Rate limit exceeded"}), 429
 
-    # Check cache for existing results
     cached_result = cache.get(text)
     if cached_result:
         return jsonify({"source": "cache", "results": json.loads(cached_result)})
 
-    # Search documents in the database
     documents = search_documents(text)
 
-    # Format results for display
     results = [{"title": doc.title, "content": doc.content} for doc in documents]
 
-    # Cache the results for future queries
     cache.setex(text, TIME_WINDOW, json.dumps(results))
 
     return jsonify({"source": "server", "results": results})
@@ -78,4 +72,3 @@ def health_check():
 
 if __name__ == '__main__':
     app.run(debug=True)
-

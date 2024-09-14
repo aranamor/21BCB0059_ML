@@ -5,18 +5,18 @@ import random
 fake = Faker()
 
 
-def add_sample_data():     # Adding sample documents
+def add_sample_data():  # Adding sample documents
     documents = []
-    for i in range(100):
+    for i in range(500):
         doc = Document(
             title=f"Document {i + 1}: {fake.catch_phrase()}",
             content='\n'.join(fake.paragraphs(nb=random.randint(1, 5)))
         )
         documents.append(doc)
 
-    users = []        # Adding sample users
-    for i in range(25):
-        user = User(user_id=f"user_{fake.uuid4()}")
+    users = []  # Adding sample users
+    for i in range(30):
+        user = User(user_id=fake.name())
         users.append(user)
 
     session.add_all(documents)

@@ -1,4 +1,4 @@
-#Code was written with the help of chatgpt
+# Code was written with the help of chatgpt
 
 from sqlalchemy import create_engine, Column, Integer, String, Text
 from sqlalchemy.orm import sessionmaker
@@ -25,17 +25,16 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(String, unique=True, nullable=False)
-    request_count = Column(Integer, default=0)
 
 
-# Set up the database engine and session
+# Set up database
 engine = create_engine('sqlite:///database.db')
 Session = sessionmaker(bind=engine)
 session = Session()
 
 
 def init_db():
-    # Create all tables
+    # Create tables
     Base.metadata.create_all(engine)
 
 
