@@ -1,30 +1,78 @@
+from flask import Flask, render_template, jsonify, request
 import redis
 import json
-from flask import Flask, jsonify, request
-from scraper import start_scraper_thread
+from models import session, Document
+
 
 cache = redis.StrictRedis(host='localhost', port=6379, db=0)
+
 app = Flask(__name__)
-start_scraper_thread()
+
+MAX_REQUESTS = 5
+TIME_WINDOW = 3600  # rate limit
 
 
+# Serve the homepage
+@app.route('/')
+def index():
+    return render_template('index.html', articles=[])
+
+
+
+def track_user_requests(user_id):
+    user_requests = cache.get(user_id)
+    if user_requests:
+        user_requests = int(user_requests)
+        if user_requests >= MAX_REQUESTS:
+            return False
+        cache.incr(user_id)
+    else:
+        cache.setex(user_id, TIME_WINDOW, 1)
+    return True
+
+
+# Search
+def search_documents(query):
+
+    results = session.query(Document).filter(
+        (Document.title.ilike(f'%{query}%')) | (Document.content.ilike(f'%{query}%'))
+    ).all()
+
+    return results
+
+
+# Search endpoint
 @app.route('/search', methods=['GET'])
 def search():
-    text = request.args.get('text', default='', type=str)
+    user_id = request.args.get('user_id')
+    text = request.args.get('text')
+
+    if not user_id or not text:
+        return jsonify({"error": "user_id and text are required"}), 400
+
+    if not track_user_requests(user_id):
+        return jsonify({"error": "Rate limit exceeded"}), 429
+
+    # Check cache for existing results
     cached_result = cache.get(text)
     if cached_result:
         return jsonify({"source": "cache", "results": json.loads(cached_result)})
 
-    result = f"Search results for {text}"
+    # Search documents in the database
+    documents = search_documents(text)
 
-    cache.set(text, json.dumps(result), ex=3600)  # Set expiry of 1 hour
+    # Format results for display
+    results = [{"title": doc.title, "content": doc.content} for doc in documents]
 
-    return jsonify({"source": "server", "results": result})
+    # Cache the results for future queries
+    cache.setex(text, TIME_WINDOW, json.dumps(results))
+
+    return jsonify({"source": "server", "results": results})
 
 
 @app.route('/health', methods=['GET'])
 def health_check():
-    return jsonify({"status": "API running!"})
+    return jsonify({"status": "API is up and running!"})
 
 
 if __name__ == '__main__':

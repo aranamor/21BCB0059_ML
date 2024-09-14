@@ -29,8 +29,7 @@ def scrape_news():
         except Exception as e:
             print(f"Error occurred while scraping: {e}")
 
-
-        time.sleep(900) # Scrapping every 15 mins
+        time.sleep(900)  # Scrapping every 15 mins
 
 
 def start_scraper_thread():
@@ -41,7 +40,6 @@ def start_scraper_thread():
 
 if __name__ == "__main__":
     start_scraper_thread()
-
 
 # https://stackoverflow.com/questions/56106040/unable-to-scrape-google-news-heading-via-their-class
 # Referred to this thread for this code
