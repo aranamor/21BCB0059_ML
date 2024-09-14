@@ -2,21 +2,23 @@ from flask import Flask, render_template, jsonify, request
 import redis
 import json
 from models import session, Document
-
+from scraper import start_scraper_thread, news_articles
 
 cache = redis.StrictRedis(host='localhost', port=6379, db=0)
 
+start_scraper_thread()
 app = Flask(__name__)
 
 MAX_REQUESTS = 5
 TIME_WINDOW = 3600  # rate limit
 
 
+
 # Serve the homepage
 @app.route('/')
 def index():
-    return render_template('index.html', articles=[])
-
+    # Pass scraped news articles to the template
+    return render_template('index.html', articles=news_articles)
 
 
 def track_user_requests(user_id):
@@ -33,7 +35,6 @@ def track_user_requests(user_id):
 
 # Search
 def search_documents(query):
-
     results = session.query(Document).filter(
         (Document.title.ilike(f'%{query}%')) | (Document.content.ilike(f'%{query}%'))
     ).all()
@@ -77,3 +78,4 @@ def health_check():
 
 if __name__ == '__main__':
     app.run(debug=True)
+

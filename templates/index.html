@@ -3,12 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Search Engine</title>
+
+    <title>Document Search and News</title>
     <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
     <div class="container">
-        <h1>Search Documents</h1>
+        <h1>CLICK TO READ THE LATEST NEWS</h1>
+        <div id="news-container">
+            {% if articles %}
+                {% for article in articles %}
+                    <div class="article">
+                        <h3>{{ article.title }}</h3>
+                        <a href="{{ article.link }}" target="_blank">Read more</a>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>No news articles available at the moment.</p>
+            {% endif %}
+        </div>
+
+        <hr>
+
+        <h2>Search Documents</h2>
         <div>
             <input type="text" id="search-query" placeholder="Enter search term...">
             <button onclick="searchDocuments()">Search</button>

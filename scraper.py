@@ -3,8 +3,9 @@ from bs4 import BeautifulSoup
 import threading
 import time
 
-
+news_articles = []
 def scrape_news():
+    global news_articles
     while True:
         url = 'https://news.google.com/topstories'
         headers = {
@@ -18,11 +19,12 @@ def scrape_news():
 
             articles = soup.select('h3 a')  # Google News uses <h3> for titles
             if articles:
+                news_articles.clear()
                 print("Scraping News Articles:")
                 for article in articles[:5]:  # Limit to top 5 articles
                     title = article.get_text()
                     link = "https://news.google.com" + article['href'][1:]  # Google News links are relative
-                    print(f"Title: {title}, Link: {link}")
+                    news_articles.append({"title": title, "link": link})
             else:
                 print("No articles found. The page structure may have changed.")
 
